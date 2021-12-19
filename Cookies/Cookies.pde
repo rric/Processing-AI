@@ -2,7 +2,7 @@
  *
  * Copyright 2015 Johannes Kepler Universität Linz,
  * Institut f. Wissensbasierte Mathematische Systeme.
- * Copyright 2019 Roland Richter.
+ * Copyright 2019, 2021 Roland Richter.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ ArrayList<Perceptron> perceptrons = new ArrayList<Perceptron>();
 
 void setup()
 {
-    frame.setResizable(true);
+    surface.setResizable(true);
 
     if (liveVideo) {
         String[] cameras = Capture.list();
@@ -95,20 +95,20 @@ void setup()
         } else {
             println("There are", cameras.length, "cameras available for capture.");
 
-            // for (int i = 0; i < cameras.length; ++i) {
-            //    println(i, ":", cameras[i]);
-            // }
+            for (int i = 0; i < cameras.length; ++i) {
+               println(i, ":", cameras[i]);
+            }
 
             // Determine best camera device available, and open it.
-            // For the KinderUni 2015 demo, that is an "AverVision" device of size
+            // For the 2021 demo, that is an "Doccamera" device of size
             // 640x480 with a frame rate of 30 fps. If this was not found, fall
-            // back to another AverVision device, or to the very first device.
+            // back to another Doccamera device, or to the very first device.
 
             int bestCamera = 0;
             boolean found = false;
 
             for (int i = 0; !found && i < cameras.length; ++i) {
-                if (match(cameras[i], "AverVision") != null) {
+                if (match(cameras[i], "Doccamera") != null) {
                     bestCamera = i;
                     if (match(cameras[i], "size=640x480") != null
                         && match(cameras[i], "fps=30") != null) {
@@ -275,7 +275,7 @@ void drawDecisionBoundaries()
 
 float magnify(float y)
 {
-    return magnifyYAxis ? 2 * y : y;
+    return magnifyYAxis ? (3 * y) : y;
 }
 
 
@@ -365,7 +365,7 @@ void draw()
     int frameWidth = VideoWidth + (showFeaturePanel ? PanelWidth : 0);
     int borderHeight = 25;
     int borderWidth = 6;
-    frame.setSize(frameWidth + borderWidth, VideoHeight + borderHeight);
+    surface.setSize(frameWidth + borderWidth, VideoHeight + borderHeight);
 
     if (video.available()) {
         video.read();
