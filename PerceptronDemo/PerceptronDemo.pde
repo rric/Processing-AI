@@ -1,6 +1,6 @@
 /* PerceptronDemo.pde
  *
- * Copyright 2013, 2014, 2015 Roland Richter.
+ * Copyright 2013, 2014, 2015, 2022 Roland Richter.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,13 +41,13 @@ final float WorldBottom =  -10.0;
 
 boolean showLineEq = true;
 
-// Indicates which point was left-clicked, if any.
-int leftclickedState = 0; // 0: no click, -1: an N was clicked; +1: a P was clicked
-int leftclickedIndex;     // Index of left-clicked point, if leftclickedState != 0
+// Indicates which point was left-pressed, if any.
+int leftState = 0; // 0: not pressed, -1: an N was pressed; +1: a P was pressed
+int leftIndex;     // Index of left-pressed point, if leftState != 0
 
-// Indicates which point was right-clicked, if any.
-int rightclickedState = 0; // 0: no click, -1: an N was clicked; +1: a P was clicked
-int rightclickedIndex;     // Index of the right-clicked point, if rightclickedState != 0
+// Indicates which point was right-pressed, if any.
+int rightState = 0; // 0: not pressed, -1: an N was pressed; +1: a P was pressed
+int rightIndex;     // Index of the right-pressed point, if rightState != 0
 
 boolean mouseDragsM = false;
 boolean mouseDragsW = false;
@@ -88,43 +88,43 @@ void initSamples(int scenario)
     Ps = new ArrayList<Vector2d>();
     Ns = new ArrayList<Vector2d>();
 
-    // Generate n negative and p positive samples.
-    // The line w . (x,y) + b separates negative from positive samples;
-    // i.e. this is the "model" we want the Perceptron to learn.
-    int n = round(random(20, 40));
-    int p = round(random(20, 40));
-    Vector2d w = new Vector2d(5, 3);
-    float b = -400;
-
-    Vector2d offset = new Vector2d(0., 0.);
-
-    switch (scenario) {
-    case 1:
-    default:
-        break;
-
-    case 2:
-        offset = new Vector2d(10., 10.);
-        break;
-
-    case 3:
-        offset = new Vector2d(-5., -5.);
-        break;
-    }
-
-    while (Ns.size () < n || Ps.size() < p) {
-        Vector2d r = new Vector2d(random(0., 100.), random(0., 100.));
-
-        if (dot(w, r) + b < 0) {
-            if (Ns.size() < n) {
-                Ns.add(sub(r, offset));
-            }
-        } else {
-            if (Ps.size() < p) {
-                Ps.add(add(r, offset));
+        // Generate n negative and p positive samples.
+        // The line w . (x,y) + b separates negative from positive samples;
+        // i.e. this is the "model" we want the Perceptron to learn.
+        int n = round(random(20, 40));
+        int p = round(random(20, 40));
+        Vector2d w = new Vector2d(5, 3);
+        float b = -400;
+    
+        Vector2d offset = new Vector2d(0., 0.);
+    
+        switch (scenario) {
+        case 1:
+        default:
+            break;
+    
+        case 2:
+            offset = new Vector2d(10., 10.);
+            break;
+    
+        case 3:
+            offset = new Vector2d(-5., -5.);
+            break;
+        }
+    
+        while (Ns.size () < n || Ps.size() < p) {
+            Vector2d r = new Vector2d(random(0., 100.), random(0., 100.));
+    
+            if (dot(w, r) + b < 0) {
+                if (Ns.size() < n) {
+                    Ns.add(sub(r, offset));
+                }
+            } else {
+                if (Ps.size() < p) {
+                    Ps.add(add(r, offset));
+                }
             }
         }
-    }
 
     //perceptron = new Perceptron(100.);
 
@@ -147,6 +147,8 @@ void setup()
     //randomSeed(42);
 
     initSamples(1);
+    
+    rectMode(CENTER);
 }
 
 
@@ -271,34 +273,34 @@ void draw()
         popMatrix();
     }
 
-    // Draw left-clicked point (if any).
-    if (leftclickedState != 0) {
-        Vector2d U = (leftclickedState < 0 ? Ns.get(leftclickedIndex) : Ps.get(leftclickedIndex));
+    // Draw left-pressed point (if any).
+    if (leftState != 0) {
+        Vector2d U = (leftState < 0 ? Ns.get(leftIndex) : Ps.get(leftIndex));
 
         strokeWeight(0.8);
 
-        if (leftclickedState == -1) {
+        if (leftState == -1) {
             stroke(#2020FF);
             fill(#60A0FF);
             triangle(U.x - 1, U.y + 1, U.x, U.y - 1, U.x + 1, U.y + 1);
-        } else if (leftclickedState == +1) {
+        } else if (leftState == +1) {
             stroke(#FF2020);
             fill(#FF60A0);
             triangle(U.x - 1, U.y - 1, U.x, U.y + 1, U.x + 1, U.y - 1);
         }
     }
 
-    // Draw right-clicked point (if any), and pop up some informative text.
-    if (rightclickedState != 0) {
-        Vector2d U = (rightclickedState < 0 ? Ns.get(rightclickedIndex) : Ps.get(rightclickedIndex));
+    // Draw right-pressed point (if any), and pop up some informative text.
+    if (rightState != 0) {
+        Vector2d U = (rightState < 0 ? Ns.get(rightIndex) : Ps.get(rightIndex));
 
         strokeWeight(0.8);
 
-        if (rightclickedState == -1) {
+        if (rightState == -1) {
             stroke(#2020FF);
             fill(#60A0FF);
             triangle(U.x - 1, U.y + 1, U.x, U.y - 1, U.x + 1, U.y + 1);
-        } else if (rightclickedState == +1) {
+        } else if (rightState == +1) {
             stroke(#FF2020);
             fill(#FF60A0);
             triangle(U.x - 1, U.y - 1, U.x, U.y + 1, U.x + 1, U.y - 1);
@@ -312,64 +314,53 @@ void draw()
         String line2 = format1(rhs);
 
         stroke(#000000);
+        strokeWeight(0.6);
         fill(#FFFFFF);
-        rect(U.x - 2, U.y + 2, 35, 11);
+        rect(U.x + 20, U.y, 36, 12);
 
         pushMatrix();
         scale(1, -1);
 
-        stroke(#000000);
         fill(#000000);
         textSize(4);
         textAlign(LEFT, CENTER);
-        text(line1, U.x, - U.y - 11);
-        text(line2, U.x, - U.y - 6);
+        text(line1, U.x + 4, -U.y - 5);
+        text(line2, U.x + 4, -U.y + 1);
 
         popMatrix();
     }
 
     popMatrix();
-
-    // Draw the two buttons "Estimate" and "Learn"
+    
     stroke(#000000);
-    fill(#FFE010);
-    rect(620, 30, 40, 40, 5);
-    fill(#000000);
     textSize(20);
     textAlign(CENTER, CENTER);
+
+    // Draw the "Estimate" and "Learn" buttons
+    fill(#FFE010);
+    rect(640, 50, 40, 40, 12);
+    fill(#000000);
     text("~", 640, 50);
 
-    stroke(#000000);
     fill(#90FF20);
-    rect(620, 80, 40, 40, 5);
+    rect(640, 100, 40, 40, 12);
     fill(#000000);
-    textSize(20);
-    textAlign(CENTER, CENTER);
     text("!", 640, 100);
 
-    // Draw the three "scenario buttons
-    stroke(#000000);
+    // Draw the "scenario" buttons
     fill(#9090FF);
-    rect(620, 430, 40, 40, 5);
+    rect(640, 450, 40, 40, 12);
     fill(#000000);
-    textSize(20);
-    textAlign(CENTER, CENTER);
     text("1", 640, 450);
 
-    stroke(#000000);
     fill(#9090FF);
-    rect(620, 480, 40, 40, 5);
+    rect(640, 500, 40, 40, 12);
     fill(#000000);
-    textSize(20);
-    textAlign(CENTER, CENTER);
     text("2", 640, 500);
 
-    stroke(#000000);
     fill(#9090FF);
-    rect(620, 530, 40, 40, 5);
+    rect(640, 550, 40, 40, 12);
     fill(#000000);
-    textSize(20);
-    textAlign(CENTER, CENTER);
     text("3", 640, 550);
 }
 
@@ -377,23 +368,23 @@ void draw()
 void mousePressed()
 {
     // Handle the following cases:
-    // 1) Left-click on one of the five buttons: trigger associated action
-    // 2) Left-click on midpoint or arrow head: start to drag
-    // 3) Left- or right-click on one of N or P points: set state/index
+    // 1) Left-press on one of the buttons: trigger associated action
+    // 2) Left-press on midpoint or arrow head: start to drag
+    // 3) Left- or right-press on one of N or P points: set state/index
 
-    if (mouseButton == LEFT && mouseX >= 620 && mouseX <= 660 && mouseY >= 30 && mouseY <= 70) {
-        perceptron.initialize(Ns, Ps);
-        M.set(50, 50);
-        perceptron.moveToSeparator(M);
-    } else if (mouseButton == LEFT && mouseX >= 620 && mouseX <= 660 && mouseY >= 80 && mouseY <= 120) {
-        perceptron.learn(Ns, Ps);
-        M.set(50, 50);
-        perceptron.moveToSeparator(M);
-    } else if (mouseButton == LEFT && mouseX >= 620 && mouseX <= 660 && mouseY >= 430 && mouseY <= 470) {
+    if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 50) < 22) {
+            perceptron.initialize(Ns, Ps);
+            M.set(50, 50);
+            perceptron.moveToSeparator(M);
+    } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 100) < 22) {
+            perceptron.learn(Ns, Ps);
+            M.set(50, 50);
+            perceptron.moveToSeparator(M);
+    } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 450) < 22) {
         initSamples(1);
-    } else if (mouseButton == LEFT && mouseX >= 620 && mouseX <= 660 && mouseY >= 480 && mouseY <= 520) {
+    } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 500) < 22) {
         initSamples(2);
-    } else if (mouseButton == LEFT && mouseX >= 620 && mouseX <= 660 && mouseY >= 530 && mouseY <= 570) {
+    } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 550) < 22) {
         initSamples(3);
     } else {
         Vector2d world = screen2world(mouseX, mouseY);
@@ -423,11 +414,11 @@ void mousePressed()
             }
 
             if (mouseButton == LEFT) {
-                leftclickedState = pressedState;
-                leftclickedIndex = pressedIndex;
+                leftState = pressedState;
+                leftIndex = pressedIndex;
             } else if (mouseButton == RIGHT) {
-                rightclickedState = pressedState;
-                rightclickedIndex = pressedIndex;
+                rightState = pressedState;
+                rightIndex = pressedIndex;
             }
         }
     }
@@ -454,11 +445,11 @@ void mouseDragged()
 
 void mouseReleased()
 {
-    // If a point was left-clicked before, update the Perceptron weights w.r.t.
+    // If a point was left-pressed before, update the Perceptron weights w.r.t.
     // this point on mouse release.
-    if (leftclickedState != 0) {
-        Vector2d U = (leftclickedState == -1 ? Ns.get(leftclickedIndex) : Ps.get(leftclickedIndex));
-        float label = leftclickedState; // -1 or +1
+    if (leftState != 0) {
+        Vector2d U = (leftState == -1 ? Ns.get(leftIndex) : Ps.get(leftIndex));
+        float label = leftState; // -1 or +1
 
         if (perceptron.update(U, label)) {
             M.x = 50;
@@ -470,7 +461,6 @@ void mouseReleased()
     mouseDragsM = false;
     mouseDragsW = false;
 
-    leftclickedState = 0;
-    rightclickedState = 0;
+    leftState = 0;
+    rightState = 0;
 }
-
