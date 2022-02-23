@@ -79,6 +79,7 @@ String format1(float v)
 
 
 // Use one of three different scenarios to generate random samples.
+// Scenario 0: clear the list, do not generate any samples
 // Scenario 1: samples are linearly separated, but only by a narrow gap
 // Scenario 2: samples are linearly separated by a huge gap
 // Scenario 3: samples are NOT linearly separated -- note that the ordinary
@@ -88,6 +89,7 @@ void initSamples(int scenario)
     Ps = new ArrayList<Vector2d>();
     Ns = new ArrayList<Vector2d>();
 
+    if (scenario != 0) {
         // Generate n negative and p positive samples.
         // The line w . (x,y) + b separates negative from positive samples;
         // i.e. this is the "model" we want the Perceptron to learn.
@@ -125,6 +127,7 @@ void initSamples(int scenario)
                 }
             }
         }
+    }
 
     //perceptron = new Perceptron(100.);
 
@@ -349,6 +352,11 @@ void draw()
 
     // Draw the "scenario" buttons
     fill(#9090FF);
+    rect(640, 400, 40, 40, 12);
+    fill(#000000);
+    text("X", 640, 400);
+    
+    fill(#9090FF);
     rect(640, 450, 40, 40, 12);
     fill(#000000);
     text("1", 640, 450);
@@ -371,15 +379,22 @@ void mousePressed()
     // 1) Left-press on one of the buttons: trigger associated action
     // 2) Left-press on midpoint or arrow head: start to drag
     // 3) Left- or right-press on one of N or P points: set state/index
+    // 4) Left- or right-press in empty region: add one N or P point
 
     if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 50) < 22) {
+        if (Ns.size() > 0 && Ps.size() > 0) {
             perceptron.initialize(Ns, Ps);
             M.set(50, 50);
             perceptron.moveToSeparator(M);
+        }
     } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 100) < 22) {
+        if (Ns.size() > 0 && Ps.size() > 0) {
             perceptron.learn(Ns, Ps);
             M.set(50, 50);
             perceptron.moveToSeparator(M);
+        }
+    } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 400) < 22) {
+        initSamples(0);
     } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 450) < 22) {
         initSamples(1);
     } else if (mouseButton == LEFT && dist(mouseX, mouseY, 640, 500) < 22) {
@@ -419,6 +434,17 @@ void mousePressed()
             } else if (mouseButton == RIGHT) {
                 rightState = pressedState;
                 rightIndex = pressedIndex;
+            }
+            
+            // If no point was clicked with left mouse, add one to N
+            if (mouseButton == LEFT && leftState == 0) {
+                Vector2d r = screen2world(mouseX, mouseY);
+                Ns.add(r);
+            }
+            // If no point was clicked with right mouse, add one to P
+            else if (mouseButton == RIGHT && rightState == 0) {
+                Vector2d r = screen2world(mouseX, mouseY);
+                Ps.add(r);
             }
         }
     }
