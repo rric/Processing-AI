@@ -2,7 +2,7 @@
  *
  * Copyright 2015 Johannes Kepler Universität Linz,
  * Institut f. Wissensbasierte Mathematische Systeme.
- * Copyright 2019, 2021 Roland Richter.
+ * Copyright 2019, 2021, 2022 Roland Richter.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ OpenCV opencv;
 char lastKey = 0;
 boolean isLabeling = false;
 String label = "";
-int threshold = 32;
+int threshold = 48;
 boolean hasBackground = false;
 
 PImage background, input;
@@ -248,13 +248,13 @@ void drawDecisionBoundaries()
         // Determine angle of vector w to rotate separating lines.
 
         Vector2d w = perceptrons.get(label).weights();
-        float wRad = angleBetween2D(new Vector2d(0., 1.), new Vector2d(w.x, w.y / magnify(1)));
+        float wRad = angleBetween2D(new Vector2d(0., 1.), new Vector2d(w.x, w.y / magnifyY3x(1)));
 
         Vector2d M = new Vector2d(50., 50.);
         perceptrons.get(label).moveToSeparator(M);
 
         pushMatrix();
-        translate(M.x, magnify(M.y));
+        translate(M.x, magnifyY3x(M.y));
         rotate(wRad);
 
         // Draw decision boundary
@@ -273,7 +273,7 @@ void drawDecisionBoundaries()
 }
 
 
-float magnify(float y)
+float magnifyY3x(float y)
 {
     return magnifyYAxis ? (3 * y) : y;
 }
@@ -300,7 +300,7 @@ void drawPoints()
         strokeWeight(0.5);
         fill(labelHue, 60, brightness);
 
-        float y = min(magnify(p.y), YOutside);
+        float y = min(magnifyY3x(p.y), YOutside);
         triangle(p.x - 1, y - 1,
                  p.x,     y + 1,
                  p.x + 1, y - 1);
@@ -322,7 +322,7 @@ void drawPoints()
 
             Vector2d p = getFeatureVector2d(row);
             mean_x += p.x;
-            mean_y += magnify(p.y);
+            mean_y += magnifyY3x(p.y);
             ++count;
             min_x = min(min_x, p.x);
             max_x = max(max_x, p.x);
@@ -339,16 +339,29 @@ void drawPoints()
         popMatrix();
     }
 
-    // Draw current points as gray dots
+    // Draw current points as gray dots, ...
+    stroke(#606060);
+    strokeWeight(0.5);
+    noFill();
+        
     for (TableRow row : currentFeatures.rows ()) {
         Vector2d p = getFeatureVector2d(row);
-
-        stroke(#606060);
-        strokeWeight(0.5);
-        noFill();
-
-        ellipse(p.x, min(magnify(p.y), YOutside), 2, 2);
+        ellipse(p.x, min(magnifyY3x(p.y), YOutside), 2, 2);
     }
+    
+    // ... together with their coordinates
+    pushMatrix();
+    scale(1, -1); // Text needs a downwards y axis.
+    fill(#606060);
+        
+    for (TableRow row : currentFeatures.rows ()) {
+        Vector2d p = getFeatureVector2d(row);
+        
+        String coord = "(" + nf(p.x, 1, 1) + "|" + nf(p.y, 1, 1) + ")";
+        text(coord, p.x + 2, -min(magnifyY3x(p.y), YOutside));
+    }
+    
+    popMatrix();
 
     popMatrix();
 }
