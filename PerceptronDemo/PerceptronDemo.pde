@@ -311,7 +311,7 @@ void draw()
 
         float rhs = perceptron.evaluate(U);
 
-        String line1 = new String("(") + format1(U.x) + new String(",")
+        String line1 = new String("(") + format1(U.x) + new String("|")
             + format1(U.y) + new String(")");
 
         String line2 = format1(rhs);

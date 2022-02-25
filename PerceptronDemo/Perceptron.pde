@@ -24,7 +24,7 @@ class Perceptron
     // is given by the normal vector w (weights) and the offset b (bias).
     // The expression
     //      w.x * u.x + w.y * u.y + b
-    // should be positive for all u in Ps, and negative for u in Ns.
+    // should be positive for all u in class P, negative for all u in class N.
 
     private Vector2d w;
     private float b;
